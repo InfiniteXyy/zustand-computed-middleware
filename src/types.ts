@@ -2,6 +2,8 @@ import { State, StateCreator, StoreMutatorIdentifier, Mutate, StoreApi, SetState
 
 export type GenComputed<C extends Record<string, (state: any) => any>> = { [K in keyof C]: ReturnType<C[K]> };
 
+export type PopArgument<T extends (...a: never[]) => unknown> = T extends (...a: [...infer A, infer _]) => infer R ? (...a: A) => R : never;
+
 declare module "zustand" {
   type Write<T extends object, U extends object> = Omit<T, keyof U> & U;
   type Cast<T, U> = T extends U ? T : U;
@@ -10,18 +12,20 @@ declare module "zustand" {
   }
 }
 
-export type Computed = <
-  S extends State,
-  C extends Record<string, (state: S) => unknown>,
-  Mps extends [StoreMutatorIdentifier, unknown][] = [],
-  Mcs extends [StoreMutatorIdentifier, unknown][] = []
->(
-  f: StateCreator<S, [...Mps, ["computed", C]], Mcs>,
-  computedConfig: C
-) => StateCreator<S & GenComputed<C>, Mps, [["computed", C], ...Mcs]>;
+export interface Computed {
+  <
+    S extends State,
+    C extends Record<string, (state: S) => unknown>,
+    Mps extends [StoreMutatorIdentifier, unknown][] = [],
+    Mcs extends [StoreMutatorIdentifier, unknown][] = []
+  >(
+    f: StateCreator<S, [...Mps, ["computed", C]], Mcs>,
+    computedConfig: C
+  ): StateCreator<S & GenComputed<C>, Mps, [["computed", C], ...Mcs]>;
 
-type PopArgument<T extends (...a: never[]) => unknown> = T extends (...a: [...infer A, infer _]) => infer R ? (...a: A) => R : never;
-export type ComputedImpl = <S extends State, C extends Record<string, (state: S) => unknown>>(
-  f: PopArgument<StateCreator<S, [], []>>,
-  computedConfig: C
-) => PopArgument<StateCreator<S, [], []>>;
+  <S extends State, Mps extends [StoreMutatorIdentifier, unknown][] = [], Mcs extends [StoreMutatorIdentifier, unknown][] = []>(
+    f: StateCreator<S, [...Mps, ["computed", unknown]], Mcs>
+  ): <C extends Record<string, (state: S) => unknown>>(
+    computedConfig: C
+  ) => StateCreator<S & GenComputed<C>, Mps, [["computed", C], ...Mcs]>;
+}

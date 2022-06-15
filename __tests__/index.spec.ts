@@ -29,6 +29,20 @@ describe("test zustand-computed-middleware", () => {
     expect(result.current.doubled).toBe(4);
   });
 
+  it("should curried version works", () => {
+    const useCounter = create(
+      computed<{ count: number; add: () => void }>((set) => ({
+        count: 1,
+        add: () => set((state) => ({ count: state.count + 1 })),
+      }))({
+        doubled: (state) => state.count * 2,
+      })
+    );
+    const { result } = renderHook(() => useCounter());
+    act(() => result.current.add());
+    expect(result.current.doubled).toBe(4);
+  });
+
   it("should computed updated with setStateAPI", () => {
     const useCounter = create(
       computed(() => ({ count: 1 }), {

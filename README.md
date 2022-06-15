@@ -51,6 +51,6 @@ const useStore = create(
 - On demand computing: only compute when needed, thanks to `proxy-compare`
 - Cleanup function: useful for promise computed result
 
-## Why not zustand-middleware-computed-state
+## Why not improve zustand-middleware-computed-state
 
 zustand-middleware-computed-state API is designed in a different pattern, some features, (cleanup function / on demand computing) are not easy to support.

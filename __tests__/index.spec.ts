@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 import { act, renderHook } from "@testing-library/react";
 import create from "zustand";
-import { combine, devtools } from "zustand/middleware";
-import { computed, withCleanup } from "../src";
+import { devtools } from "zustand/middleware";
+import { computed } from "../src";
 
 describe("test zustand-computed-middleware", () => {
   it("should return initial computed", () => {
@@ -104,7 +104,12 @@ describe("test zustand-computed-middleware", () => {
   it("should withCleanup works", () => {
     const cleanupSpy = vi.fn();
     const useCounter = create(
-      computed(() => ({ count: 1 }), { doubled: (state) => withCleanup({ value: new Number(state.count * 2), cleanup: cleanupSpy }) })
+      computed(() => ({ count: 1 }), {
+        doubled: (state, { addCleanup }) => {
+          addCleanup(cleanupSpy);
+          return state.count * 2;
+        },
+      })
     );
     renderHook(() => useCounter());
     expect(cleanupSpy).toBeCalledTimes(0);

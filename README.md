@@ -51,7 +51,7 @@ const useStore = create(
       pokemonDetail$: async ({ pokemonIndex }, { addCleanup }) => {
         const abortController = new AbortController();
         const abortSignal = abortController.signal;
-        addCleanup(abortController.abort);
+        addCleanup(() => abortController.abort());
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonIndex}`, { signal: abortSignal });
         return await response.json();
       },

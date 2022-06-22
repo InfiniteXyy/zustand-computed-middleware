@@ -12,10 +12,10 @@ export const mapObject = <T extends object, R>(obj: T, fn: (value: T[keyof T], k
 // memoize function inspired by https://github.com/alexreardon/memoize-one
 // deps-change detection based on proxy-compare by dai-shi https://github.com/dai-shi/proxy-compare
 /** Get computed methods from the computed config, handling memoizing and modifiers */
-export function getComputeMethod<T extends ComputeMethod<any, any>>(fn: T) {
+export function getComputeMethod(fn: ComputeMethod) {
   const affected = new WeakMap();
-  let cache: { lastResult: ReturnType<T>; lastState: Parameters<T>[0]; cleanup?: () => void } | null = null;
-  return function (state: Parameters<T>[0]): ReturnType<T> {
+  let cache: { lastResult: unknown; lastState: unknown; cleanup?: () => void } | null = null;
+  return function (state: unknown): unknown {
     if (cache && !isChanged(cache.lastState, state, affected)) {
       // If the require dependencies are the same, return the cached result
       return cache.lastResult;

@@ -48,13 +48,12 @@ const useStore = create(
       return { index: 0 };
     },
     {
-      pokemonDetail$: ({ index }) => {
+      pokemonDetail$: async ({ pokemonIndex }, { addCleanup }) => {
         const abortController = new AbortController();
         const abortSignal = abortController.signal;
-        return withCleanup({
-          value: fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonIndex}`, { signal: abortSignal }).then((r) => r.json()),
-          cleanup: () => abortController.abort(),
-        });
+        addCleanup(abortController.abort);
+        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonIndex}`, { signal: abortSignal });
+        return await response.json();
       },
     }
   )

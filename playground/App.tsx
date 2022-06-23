@@ -3,34 +3,25 @@ import { computed } from "../src";
 
 import { usePromiseResolved } from "./use-promise";
 
-type Store = { input: string; pokemonIndex: number };
+type Store = { input: string; pokemonIndex: number; changePokemonIndex(v: number): void };
 const useStore = create(
-  computed(
-    () => {
-      return { input: "World", pokemonIndex: 1 } as Store;
+  computed<Store>((set) => ({ input: "World", pokemonIndex: 1, changePokemonIndex: (pokemonIndex) => set({ pokemonIndex }) }))({
+    displayText: ({ pokemonIndex, input }) => {
+      return `Hello ${input}, Pokemon Index is ${pokemonIndex}`;
     },
-    {
-      displayText: ({ pokemonIndex, input }) => {
-        return `Hello ${input}, Pokemon Index is ${pokemonIndex}`;
-      },
-      pokemonDetail$: async ({ pokemonIndex }, {addCleanup}) => {
-        const abortController = new AbortController();
-        const abortSignal = abortController.signal;
-        addCleanup(() => abortController.abort())
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonIndex}`, { signal: abortSignal })
-        return await response.json()
-      },
-    }
-  )
+    pokemonDetail$: async ({ pokemonIndex }, { addCleanup }) => {
+      const abortController = new AbortController();
+      const abortSignal = abortController.signal;
+      addCleanup(() => abortController.abort());
+      const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonIndex}`, { signal: abortSignal });
+      return await response.json();
+    },
+  })
 );
 
 export default function App() {
-  const { pokemonDetail$, pokemonIndex, input, displayText } = useStore();
+  const { pokemonDetail$, pokemonIndex, input, displayText, changePokemonIndex } = useStore();
   const pokemonDetail = usePromiseResolved(pokemonDetail$);
-
-  const changePokemonIndex = (pokemonIndex: number) => {
-    useStore.setState(() => ({ pokemonIndex }));
-  };
 
   return (
     <div>

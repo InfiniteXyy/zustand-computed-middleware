@@ -62,18 +62,26 @@ const useStore = create(
 
 ### TypeScript
 
-If your store has a setter/getter function inside, you should define it explicitly.
+If your store **has a setter/getter function** inside, you should define it explicitly.
 The definition is not easy.
 
 ```ts
 type State = { count: number; add: () => void };
 type StateComputed = { doubled: (state: State) => number };
-const useStore = create(computed<State, StateComputed>(...));
+const useStore = create(
+  computed<State, StateComputed>((set) => ({ count: 0, add: () => set((s) => ({ count: s.count + 1 })) }), {
+    doubled: (state) => state.count * 2,
+  })
+);
 ```
 
 To make it simpler, you can use it in a curried function way. And it's a workaround for https://github.com/microsoft/TypeScript/issues/10571 (this is also used in [zustand](https://github.com/pmndrs/zustand/blob/main/docs/typescript.md#basic-usage) v4)
 
+A simple example can be found here [codesandbox](https://codesandbox.io/s/zustand-computed-middleware-demo-forked-9wkop4)
+
 ```ts
 type State = { count: number; add: () => void };
-const useStore = create(computed<State>(...)(...));
+const useStore = create(
+  computed<State>((set) => ({ count: 0, add: () => set((s) => ({ count: s.count + 1 })) }))({ doubled: (state) => state.count * 2 })
+);
 ```

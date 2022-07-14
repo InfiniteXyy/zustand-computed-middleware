@@ -69,9 +69,12 @@ The definition is not easy.
 type State = { count: number; add: () => void };
 type StateComputed = { doubled: (state: State) => number };
 const useStore = create(
-  computed<State, StateComputed>((set) => ({ count: 0, add: () => set((s) => ({ count: s.count + 1 })) }), {
-    doubled: (state) => state.count * 2,
-  })
+  computed<State, StateComputed>(
+    (set) => {
+      return { count: 0, add: () => set((s) => ({ count: s.count + 1 })) };
+    },
+    { doubled: (state) => state.count * 2 }
+  )
 );
 ```
 
@@ -82,6 +85,10 @@ A simple example can be found here [codesandbox](https://codesandbox.io/s/zustan
 ```ts
 type State = { count: number; add: () => void };
 const useStore = create(
-  computed<State>((set) => ({ count: 0, add: () => set((s) => ({ count: s.count + 1 })) }))({ doubled: (state) => state.count * 2 })
+  computed<State>((set) => {
+    return { count: 0, add: () => set((state) => ({ count: state.count + 1 })) };
+  })({
+    doubled: (state) => state.count * 2,
+  })
 );
 ```
